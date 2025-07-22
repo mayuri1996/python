@@ -8,6 +8,7 @@ attempts = 0
 #------------------------------------------------------------------------------------ 
 # for module example we are added this code 
 def guessingGame():
+    global attempts # if you want to update global variable aftter importing file python wants to know it is global variable
     while True:
       userNum = int(input("Enter your number to guess "))
       attempts +=1  

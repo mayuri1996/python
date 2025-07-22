@@ -5,7 +5,7 @@ import math
 #import guesguessingGame
 
 #this line imported only guesguessingGame function if other code is available inside the file then it will not work
-from  package.guess_number_game import guesguessingGame
+from  package import guess_number_game
 
 # module means importing another file and use functions to that file into current file 
 # find square root and power of number using math module
@@ -16,4 +16,4 @@ print(f"squareroot = {_result}")
 print(f"power = {_power}")
 
 #costume module
-guesguessingGame()
+guess_number_game.guessingGame()
