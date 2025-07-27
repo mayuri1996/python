@@ -1,26 +1,37 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
 import { Service } from './service';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,FormsModule],
+  standalone: true,
+  imports: [FormsModule,CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  message:any;
-  prediction:any;
+  message: string = '';
+  prediction: string = '';
+  isLoading: boolean = false;
+  error: boolean = false;
 
-  constructor(private service: Service) {
-    // Initialization logic can go here
-  }
+  constructor(private _service:Service) {}
 
   getPrediction() {
-    this.service.getPrediction(this.message).subscribe((response) => {
-      console.log(response);
-      this.prediction = response.prediction;
-    });
+    this.isLoading = true;
+    this.error = false;
+
+    this._service.getPrediction(this.message).subscribe(
+      (response) => {
+        this.isLoading = false;
+        this.prediction = response.prediction;
+      },
+      (err) => {
+        this.isLoading = false;
+        this.error = true;
+        console.error('Prediction error:', err);
+      }
+    );
   }
 }

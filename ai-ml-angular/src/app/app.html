@@ -1,3 +1,18 @@
-<input type="text" placeholder="Enter your name" [(ngModel)]="message"/>
+<input type="text" placeholder="Enter your name" [(ngModel)]="message" />
 <button (click)="getPrediction()">submit</button>
-<h3>predoction : {{prediction}}</h3>
+
+<h3>prediction: {{ prediction }}</h3>
+
+<div class="mt-3">
+  <!-- Always render this div so Angular hydration doesn’t break -->
+  <div *ngIf="isLoading === true">
+    <span class="spinner-border text-primary" role="status"></span>
+    Loading...
+  </div>
+
+  <div *ngIf="error === true">
+    <div class="alert alert-danger mt-3">
+      <p class="text-danger">Error fetching prediction</p>
+    </div>
+  </div>
+</div>
