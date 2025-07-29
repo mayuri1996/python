@@ -14,6 +14,6 @@ export class MyServiceService {
   ) { }
 
   sendMessage(message: string) :Observable<any> {
-    return this.http.post<any>(this.apiUrl, { message:message });
+    return this.http.post<any>(this.apiUrl, { message:message ,user_name:'Mayuri Jadhav'});
   }
 }
