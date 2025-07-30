@@ -1,0 +1,28 @@
+from flask import Flask, Blueprint, jsonify, request
+from db_models import db, registration
+from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
+
+regisration_bp = Blueprint('registration', __name__)
+
+@regisration_bp.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('name')
+    password = data.get('password')
+    email = data.get('email')
+
+    if not username or not password or not email:
+        return jsonify({"error":"Missing required fields"}), 400
+    
+    if registration.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already exists"}), 409
+    
+    new_user = registration(username=username, password=password, email=email)
+
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "User registered successfully"}), 201
+    
+    
+
+

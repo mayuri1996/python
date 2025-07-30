@@ -2,16 +2,18 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pickle
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from db_models import db
+from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
+from registration import regisration_bp
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@localhost/prediction_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Database configuration from config.py file
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 
-db = SQLAlchemy(app)
+db.init_app(app)
 
 # Load the trained model and vectorizer
 with open("vectorizer.pkl", "rb") as vectorizer_file:
@@ -20,34 +22,34 @@ with open("vectorizer.pkl", "rb") as vectorizer_file:
 with open("model.pkl", "rb") as model_file:
     loaded_model = pickle.load(model_file)  # Load the trained model from the file    
 
-@app.route('/')
-def home():
-    return "Welcome to the flask App!"
+# @app.route('/')
+# def home():
+#     return "Welcome to the flask App!"
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.get_json()  # Get the JSON data from the request
-    text = data['message']
-    user = data.get('user_name', 'Anonymous')
+# @app.route('/predict', methods=['POST'])
+# def predict():
+#     data = request.get_json()  # Get the JSON data from the request
+#     text = data['message']
+#     user = data.get('user_name', 'Anonymous')
     
-    vect_text = loaded_vectorizer.transform([text])
-    prediction = loaded_model.predict(vect_text)
+#     vect_text = loaded_vectorizer.transform([text])
+#     prediction = loaded_model.predict(vect_text)
 
-    log = PredictionLog(user_name=user,message=text, prediction=prediction[0])
-    db.session.add(log)
-    db.session.commit()
+#     log = PredictionLog(user_name=user,message=text, prediction=prediction[0])
+#     db.session.add(log)
+#     db.session.commit()
 
-    return jsonify({"prediction": prediction[0]})
+#     return jsonify({"prediction": prediction[0]})
 
-class PredictionLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(100))
-    message = db.Column(db.String(500))
-    prediction = db.Column(db.String(100))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify({"error": "Resource not found"}), 404
 
 with app.app_context():
     db.create_all()
+
+# Register(add) the registration blueprint
+app.register_blueprint(regisration_bp, url_prefix='/auth')    
 
 if __name__ == '__main__':
     app.run(debug=True)
