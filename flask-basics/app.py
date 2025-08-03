@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pickle
+from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from db_models import db
-from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
+from config import JWT_SECRET_KEY, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from registration import regisration_bp
+from login import login_bp
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -12,7 +14,9 @@ CORS(app)  # Enable CORS for all routes
 # Database configuration from config.py file
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
 
+jwt = JWTManager(app)  # Initialize JWT manager
 db.init_app(app)
 
 # Load the trained model and vectorizer
@@ -49,7 +53,9 @@ with app.app_context():
     db.create_all()
 
 # Register(add) the registration blueprint
-app.register_blueprint(regisration_bp, url_prefix='/auth')    
+app.register_blueprint(regisration_bp, url_prefix='/auth')  
+
+app.register_blueprint(login_bp, url_prefix='/auth')  # Register the login blueprint
 
 if __name__ == '__main__':
     app.run(debug=True)
