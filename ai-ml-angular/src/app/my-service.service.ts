@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -10,6 +10,7 @@ export class MyServiceService {
   private apiUrl = 'http://localhost:5000/predict'; // Adjust the URL as needed
   private registrationUrl = 'http://localhost:5000/auth/register'; // Adjust the URL as needed
   private loginUrl = 'http://localhost:5000/auth/login'; // Adjust the URL as needed
+  private profileUrl = 'http://localhost:5000/auth/profile'; // Adjust the URL as needed
 
   constructor(
     private http: HttpClient
@@ -31,5 +32,20 @@ export class MyServiceService {
     return this.http.post<any>(loginUrl, loginData, {
     observe: 'response'  // // for full response status code and all
   });
+  }
+
+  userProfile(): Observable<HttpResponse<any>> {
+    const url = this.profileUrl; // Adjust the URL as needed
+    const token = localStorage.getItem('token');
+    console.log(token);
+    
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+    return this.http.get<any>(url, {
+      headers:headers,
+      observe: 'response',  // for full response status code and all
+    });
   }
 }

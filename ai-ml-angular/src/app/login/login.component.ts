@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MyServiceService } from '../my-service.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,8 @@ export class LoginComponent {
 
 
    constructor(private formBuilder: FormBuilder,
-    private myServise: MyServiceService // Inject your service here
+    private myServise: MyServiceService ,// Inject your service here
+    private router: Router
    ) {
       this.loginForm = this.formBuilder.group({
          username: ['', Validators.required],
@@ -35,6 +37,10 @@ export class LoginComponent {
             if (response.status === 201) {
                alert("✅ Login successful");
                this.loginForm.reset();
+               localStorage.setItem('token', response.body?.access_token || '');
+               localStorage.setItem('userId', response.body?.userId || '');
+               this.router.navigate(['user-profile']);
+
             } else {
                alert("⚠️ Something else happened: " + response.body?.error);
             }

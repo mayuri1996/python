@@ -7,9 +7,11 @@ from db_models import db
 from config import JWT_SECRET_KEY, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from registration import regisration_bp
 from login import login_bp
+from user_profile import profile_bp
+
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, supports_credentials=True)  # Enable CORS for all routes
 
 # Database configuration from config.py file
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
@@ -49,13 +51,26 @@ with open("model.pkl", "rb") as model_file:
 def not_found_error(error):
     return jsonify({"error": "Resource not found"}), 404
 
+# @jwt.unauthorized_loader
+# def custom_unauthorized_response(err):
+#     print("🚫 Unauthorized:", err)
+#     return jsonify({"error": "Unauthorized", "details": err}), 401
+
+# @jwt.invalid_token_loader
+# def custom_invalid_token_response(err):
+#     print("❌ Invalid token:", err)
+#     return jsonify({"error": "Invalid token", "details": err}), 422
+
 with app.app_context():
     db.create_all()
 
 # Register(add) the registration blueprint
 app.register_blueprint(regisration_bp, url_prefix='/auth')  
 
+# Register(add) the login blueprint
 app.register_blueprint(login_bp, url_prefix='/auth')  # Register the login blueprint
+
+app.register_blueprint(profile_bp, url_prefix='/auth')  # Register the profile blueprint
 
 if __name__ == '__main__':
     app.run(debug=True)
